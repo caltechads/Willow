@@ -115,6 +115,12 @@ class WandImage(Image):
 
     @Image.operation
     def save_as_gif(self, f):
+        # Prevent Wand's pixel cache from using more than 500 megs of RAM.
+        # Any excess pixel caching is done to disk, instead. This is needed
+        # because very long animated GIFs can balloon into enormous sizes
+        # during the conversion process.
+        from wand.resource import limits
+        limits['memory'] = 1024 * 1024 * 200
         with self.image.convert('gif') as converted:
             converted.save(file=f)
 
